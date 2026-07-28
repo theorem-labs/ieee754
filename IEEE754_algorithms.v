@@ -21,9 +21,9 @@
 (* Patrick Loiseleur, avril 1997			*)
 (********************************************************)
 
-Require Import Omega.
+Require Import Lia.
+Require Import ZArith.
 Require Import Zcomplements.
 Require Import Zpower.
-Require Import Zlogarithm.
 Require Import Diadic.
 Require Import IEEE754_def.

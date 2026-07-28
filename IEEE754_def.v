@@ -21,11 +21,11 @@
 (* Patrick Loiseleur, avril 1997			*)
 (********************************************************)
 
-Require Import Omega.
+Require Import Lia.
+Require Import ZArith.
 Require Import Bool.
 Require Import Zcomplements.
 Require Import Zpower.
-Require Import Zlogarithm.
 
 Require Import Diadic.
 Require Import Registers.
@@ -213,7 +213,7 @@ Definition abstract_of_diadic (m : rounding_mode) (x : diadic) :=
   match nx return abstract_IEEE with
   | Z0 => Zero true
   | Zpos p =>
-      if Zbool.Zgt_bool ex (Emax t)
+      if Zgt_bool ex (Emax t)
       then Infty true
       else
        match (ex - Emin t)%Z with
@@ -221,14 +221,14 @@ Definition abstract_of_diadic (m : rounding_mode) (x : diadic) :=
            match POS_ROUND m e p with
            | N0 => Zero true
            | Npos q =>
-               if Zbool.Zge_bool (Zpos q) (two_p (Zsucc (dig_length t)))
+               if Zge_bool (Zpos q) (two_p (Zsucc (dig_length t)))
                then Normal true (Emin t) q
                else Subnormal true q
            end
        | _ => Normal true ex p
        end
   | Zneg p =>
-      if Zbool.Zgt_bool ex (Emax t)
+      if Zgt_bool ex (Emax t)
       then Infty false
       else
        match (ex - Emin t)%Z with
@@ -236,7 +236,7 @@ Definition abstract_of_diadic (m : rounding_mode) (x : diadic) :=
            match NEG_ROUND m e p with
            | N0 => Zero false
            | Npos q =>
-               if Zbool.Zge_bool (Zpos q) (two_p (Zsucc (dig_length t)))
+               if Zge_bool (Zpos q) (two_p (Zsucc (dig_length t)))
                then Normal false (Emin t) q
                else Subnormal false q
            end
@@ -252,7 +252,7 @@ Definition abstract_of_diadic_s (m : rounding_mode)
   match nx return (abstract_IEEE * exception) with
   | Z0 => (Zero true, Nothing)
   | Zpos p =>
-      if Zbool.Zgt_bool ex (Emax t)
+      if Zgt_bool ex (Emax t)
       then (Infty true, Overflow)
       else
        match (ex - Emin t)%Z with
@@ -260,14 +260,14 @@ Definition abstract_of_diadic_s (m : rounding_mode)
            match POS_ROUND m e p with
            | N0 => (Zero true, Inexact_underflow)
            | Npos q =>
-               if Zbool.Zge_bool (Zpos q) (two_p (Zsucc (dig_length t)))
+               if Zge_bool (Zpos q) (two_p (Zsucc (dig_length t)))
                then (Normal true (Emin t) q, Nothing)
                else (Subnormal true q, Underflow)
            end
        | _ => (Normal true ex p, Nothing)
        end
   | Zneg p =>
-      if Zbool.Zgt_bool ex (Emax t)
+      if Zgt_bool ex (Emax t)
       then (Infty false, Overflow)
       else
        match (ex - Emin t)%Z with
@@ -275,7 +275,7 @@ Definition abstract_of_diadic_s (m : rounding_mode)
            match NEG_ROUND m e p with
            | N0 => (Zero false, Inexact_underflow)
            | Npos q =>
-               if Zbool.Zge_bool (Zpos q) (two_p (Zsucc (dig_length t)))
+               if Zge_bool (Zpos q) (two_p (Zsucc (dig_length t)))
                then (Normal false (Emin t) q, Nothing)
                else (Subnormal false q, Underflow)
            end

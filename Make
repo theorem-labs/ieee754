@@ -1,4 +1,7 @@
+
 -R . IEEE754
+
+ZCompat.v
 
 Diadic.v 
 IEEE754_algorithms.v 

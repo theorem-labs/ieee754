@@ -21,11 +21,13 @@
 (* Patrick Loiseleur, avril 1997			*)
 (********************************************************)
 
-Require Import Omega.
+Require Import Lia.
+Require Import ZArith.
 Require Import Zcomplements.
 Require Import Zpower.
-Require Import Zlogarithm.
 Require Import ZArithRing.
+
+Require Export ZCompat.
 
 Section definitions.
 
@@ -79,7 +81,7 @@ Section comparisons.
 
 (* Fist a function Qcompare is defined, who takes two diadic numbers	*)
 (* and answers SUPERIEUR, EGAL or INFERIEUR.				*)
-(* Qcompare is similary to Zcompare from the omega library		*)
+(* Qcompare is similary to Zcompare from the lia library		*)
 (* Then the usual predicates "less or equal", "less than", "greater	*)
 (* or equal" and "greater than" are defined. Since these predicates	*)
 (* are deterministic, the boolean equivalents are also defined	*)
@@ -174,14 +176,14 @@ Lemma Dcompare_shift :
  forall (x y : diadic) (n : Z),
  Dcompare (Dshift n x) (Dshift n y) = Dcompare x y. 
 unfold Dcompare in |- *; simpl in |- *; intros;
- rewrite (Zmin.Zmin_plus (Dexp x) (Dexp y) n).
-do 2 rewrite BinInt.Zminus_plus_simpl_r.
+ rewrite (Zmin_plus (Dexp x) (Dexp y) n).
+do 2 rewrite Zminus_plus_simpl_r.
 reflexivity.
 Qed.
 
 Lemma eq_Deq : forall x y : diadic, x = y -> Deq x y.
 intros; rewrite H; unfold Deq in |- *; unfold Dcompare in |- *;
- apply Zcompare.Zcompare_eq_case; trivial.
+ apply Zcompare_eq_case; trivial.
 Qed.
 
 (* Links between Zcompare and Dcompare, Zle and Dle *)
@@ -194,7 +196,7 @@ symmetry  in |- *.
 replace (two_p (n - Zmin ex n) * 0)%Z with (two_p (ex - Zmin ex n) * 0)%Z.
 apply Zmult_compare_compat_l. 
 apply two_p_gt_ZERO.
-generalize (Zle_min_l ex n); generalize (Zmin ex n); intro; omega.
+generalize (Zle_min_l ex n); generalize (Zmin ex n); intro; lia.
 do 2 rewrite Zmult_0_r; reflexivity.
 Qed.
 
@@ -213,7 +215,7 @@ cut
   (two_p (ex - n - Zmin ex (ex - n)) * (nx * two_p n))%Z).
 intro H; rewrite H.
 generalize (two_p (ex - n - Zmin ex (ex - n)) * (nx * two_p n))%Z.
-intros. generalize (Zcompare.Zcompare_refl z).
+intros. generalize (Zcompare_refl z).
 elim (z ?= z)%Z; discriminate || trivial.
 rewrite (Zmult_comm nx (two_p n)).
 rewrite <- Zmult_assoc_reverse.
@@ -221,7 +223,7 @@ rewrite <- two_p_is_exp.
 ring_simplify (ex - n - Zmin ex (ex - n) + n)%Z (ex - Zmin ex (ex - n))%Z.
 reflexivity.
 generalize (Zle_min_l ex (ex - n)) (Zle_min_r ex (ex - n)).
-omega.
+lia.
 assumption.
 Qed.
 
@@ -232,7 +234,7 @@ rewrite (Zmin_n_n d).
 rewrite <- (Zminus_diag_reverse d).
 unfold two_p in |- *.
 rewrite (Zcompare_mult_compat 1 n1 n2).
-apply Zcompare.Zle_compare; assumption.
+apply Zle_compare; assumption.
 Qed.
 
 Lemma Dlt_Zlt :
@@ -242,7 +244,7 @@ rewrite (Zmin_n_n d).
 rewrite <- (Zminus_diag_reverse d).
 unfold two_p in |- *.
 rewrite (Zcompare_mult_compat 1 n1 n2).
-apply Zcompare.Zlt_compare; assumption.
+apply Zlt_compare; assumption.
 Qed.
 
 Lemma Dge_Zge :
@@ -252,7 +254,7 @@ rewrite (Zmin_n_n d).
 rewrite <- (Zminus_diag_reverse d).
 unfold two_p in |- *.
 rewrite (Zcompare_mult_compat 1 n1 n2).
-apply Zcompare.Zge_compare; assumption.
+apply Zge_compare; assumption.
 Qed.
 
 Lemma Dgt_Zgt :
@@ -262,7 +264,7 @@ rewrite (Zmin_n_n d).
 rewrite <- (Zminus_diag_reverse d).
 unfold two_p in |- *.
 rewrite (Zcompare_mult_compat 1 n1 n2).
-apply Zcompare.Zgt_compare; assumption.
+apply Zgt_compare; assumption.
 Qed.
 
 (* Arithmetic properties on D : Dle is reflexive, transitive, antisymmetric *)
@@ -440,7 +442,7 @@ Lemma ZROUND_correct :
  | Rounding_nearest =>
      match (x - ZROUND_inf p x ?= ZROUND_sup p x - x)%Z with
      | Datatypes.Eq =>
-         if Zeven.Zeven_bool (ZROUND_inf p x)
+         if Zeven_bool (ZROUND_inf p x)
          then (y * two_power_pos p <= x < Zsucc y * two_power_pos p)%Z
          else (Zpred y * two_power_pos p < x <= y * two_power_pos p)%Z
      | Datatypes.Gt =>
@@ -459,7 +461,7 @@ simple destruct m;
  [ exact ZROUND_sup_spec
  | exact ZROUND_inf_spec
  | intros p x; elim (x - ZROUND_inf p x ?= ZROUND_sup p x - x)%Z;
-    [ elim (Zeven.Zeven_bool (ZROUND_inf p x));
+    [ elim (Zeven_bool (ZROUND_inf p x));
        [ apply ZROUND_inf_spec | apply ZROUND_sup_spec ]
     | apply ZROUND_inf_spec
     | apply ZROUND_sup_spec ]
@@ -473,11 +475,11 @@ Definition ZROUND (m : rounding_mode) (p : positive)
   (x : Z) := let (x', p) := ZROUND_correct m p x in x'.
 
 Definition POS_ROUND (m : rounding_mode) (p n : positive) :=
-  BinInt.Zabs_N (ZROUND m p (Zpos n)).
+  Zabs_N (ZROUND m p (Zpos n)).
 
 
 Definition NEG_ROUND (m : rounding_mode) (p n : positive) :=
-  BinInt.Zabs_N (- ZROUND m p (Zneg n)).
+  Zabs_N (- ZROUND m p (Zneg n)).
 
 
 (* (ROUND m p x) does verify :

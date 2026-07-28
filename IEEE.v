@@ -21,12 +21,12 @@
 (* Patrick Loiseleur, avril 1997			*)
 (********************************************************)
 
-Require Export Omega.
+Require Export Lia.
+Require Export ZArith.
 Require Export Bool.
 
 Require Export Zcomplements.
 Require Export Zpower.
-Require Export Zlogarithm.
 Require Export Diadic.
 Require Export IEEE754_def.
 Require Export IEEE754_properties.

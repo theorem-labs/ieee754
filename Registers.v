@@ -23,7 +23,10 @@
 (********************************************************)
 
 Require Import Bool.
-Require Import Omega.
+Require Import ZArith.
+Require Import NArith.
+Require Import Lia.
+Require Export ZCompat.
 
 Section registers.
 
@@ -84,11 +87,11 @@ Fixpoint entier_of_register (n : nat) (x : register n) {struct x} : N :=
   | regO => 0%N
   | regS m b y =>
       if b
-      then Ndouble_plus_one (entier_of_register m y)
-      else Ndouble (entier_of_register m y)
+      then N.succ_double (entier_of_register m y)
+      else N.double (entier_of_register m y)
   end.
 Definition Z_of_register (n : nat) (x : register n) :=
-  BinInt.Z_of_N (entier_of_register n x).
+  Z_of_N (entier_of_register n x).
 
 (********
 Lemma eq_register_correct : (n:nat)(x:(register n))(m:nat)(y:(register m))
@@ -123,7 +126,7 @@ Definition register_of_entier (n : nat) (x : N) :=
   | Npos p => register_of_pos n p
   end.
 Definition register_of_Z (n : nat) (z : Z) : register n :=
-  register_of_entier n (BinInt.Zabs_N z).
+  register_of_entier n (Zabs_N z).
 
 (******************************************************
 *** Need the power of two
@@ -155,10 +158,10 @@ Lemma register_of_entier_bij2 :
 simple induction x;
  [ reflexivity
  | intros m b r; elim b;
-    [ simpl in |- *; unfold Ndouble_plus_one in |- *;
+    [ simpl in |- *; unfold N.succ_double in |- *;
        elim (entier_of_register m r); intros; rewrite <- H; 
        reflexivity
-    | simpl in |- *; unfold Ndouble in |- *; elim (entier_of_register m r);
+    | simpl in |- *; unfold N.double in |- *; elim (entier_of_register m r);
        intros; rewrite <- H; reflexivity ] ].
 Qed.
 
